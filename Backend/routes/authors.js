@@ -43,4 +43,30 @@ authorsRouter.post("/", async (req, res) => {
     }
 })
 
+// GET autore singolo
+authorsRouter.get("/:id", async (req, res) => {
+    try {
+        const author = await Author.findById(req.params.id)
+
+        if (!author) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Not Found"
+            })
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            message: "OK",
+            data: author
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 module.exports = authorsRouter
