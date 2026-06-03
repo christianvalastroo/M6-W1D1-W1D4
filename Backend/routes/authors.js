@@ -69,4 +69,36 @@ authorsRouter.get("/:id", async (req, res) => {
     }
 })
 
+// UPDATE autore
+authorsRouter.put("/:id", async (req, res) => {
+    try {
+        const updatedAuthor = await Author.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true
+            }
+        )
+
+        if (!updatedAuthor) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Not Found"
+            })
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            message: "Author updated",
+            data: updatedAuthor
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 module.exports = authorsRouter
