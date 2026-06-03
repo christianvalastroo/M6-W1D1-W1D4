@@ -101,4 +101,29 @@ authorsRouter.put("/:id", async (req, res) => {
     }
 })
 
+// DELETE autore
+authorsRouter.delete("/:id", async (req, res) => {
+    try {
+        const deletedAuthor = await Author.findByIdAndDelete(req.params.id)
+
+        if (!deletedAuthor) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Not Found"
+            })
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            message: "Author deleted"
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 module.exports = authorsRouter
