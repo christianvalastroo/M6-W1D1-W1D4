@@ -101,4 +101,29 @@ blogPostsRouter.put("/:id", async (req, res) => {
     }
 })
 
+// DELETE blog post
+blogPostsRouter.delete("/:id", async (req, res) => {
+    try {
+        const deletedBlogPost = await BlogPost.findByIdAndDelete(req.params.id)
+
+        if (!deletedBlogPost) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Not Found"
+            })
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            message: "Blog post deleted"
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 module.exports = blogPostsRouter
