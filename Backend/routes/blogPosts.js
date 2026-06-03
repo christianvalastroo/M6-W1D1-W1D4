@@ -22,4 +22,25 @@ blogPostsRouter.get("/", async (req, res) => {
     }
 })
 
+// POST crea blog post
+blogPostsRouter.post("/", async (req, res) => {
+    try {
+        const newBlogPost = new BlogPost(req.body)
+
+        const savedBlogPost = await newBlogPost.save()
+
+        res.status(201).json({
+            statusCode: 201,
+            message: "Created",
+            data: savedBlogPost
+        })
+
+    } catch (error) {
+        res.status(400).json({
+            statusCode: 400,
+            message: "Bad Request"
+        })
+    }
+})
+
 module.exports = blogPostsRouter
