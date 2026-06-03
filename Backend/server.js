@@ -3,11 +3,15 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 require("dotenv").config()
 
+const authorsRouter = require("./routes/authors")
+
 const app = express()
 const PORT = 3001
 
 app.use(cors())
 app.use(express.json())
+
+app.use("/authors", authorsRouter)
 
 mongoose.connect(process.env.MONGO_URL)
 
