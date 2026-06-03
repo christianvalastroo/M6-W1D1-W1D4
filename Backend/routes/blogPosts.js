@@ -3,14 +3,24 @@ const BlogPost = require("../models/BlogPost")
 
 const blogPostsRouter = express.Router()
 
-// GET tutti i blog post
+// GET tutti i blog post con paginazione
 blogPostsRouter.get("/", async (req, res) => {
     try {
-        const blogPosts = await BlogPost.find().populate("autore")
+        const page = req.query.page || 1
+        const limit = req.query.limit || 10
+
+        const blogPosts = await BlogPost.find()
+            .limit(limit)
+            .skip((page - 1) * limit)
+
+        const totalBlogPosts = await BlogPost.countDocuments()
 
         res.status(200).json({
             statusCode: 200,
             message: "OK",
+            count: totalBlogPosts,
+            totalPages: Math.ceil(totalBlogPosts / limit),
+            currentPage: Number(page),
             data: blogPosts
         })
 
