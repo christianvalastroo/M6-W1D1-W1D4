@@ -69,4 +69,36 @@ blogPostsRouter.get("/:id", async (req, res) => {
     }
 })
 
+// UPDATE blog post
+blogPostsRouter.put("/:id", async (req, res) => {
+    try {
+        const updatedBlogPost = await BlogPost.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true
+            }
+        ).populate("autore")
+
+        if (!updatedBlogPost) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Not Found"
+            })
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            message: "Blog post updated",
+            data: updatedBlogPost
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 module.exports = blogPostsRouter
