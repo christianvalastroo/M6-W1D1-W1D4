@@ -16,6 +16,9 @@ Il progetto permette di gestire autori e articoli di un blog attraverso API REST
 * Express.js
 * MongoDB Atlas
 * Mongoose
+* Cloudinary
+* Multer
+* Multer Storage Cloudinary
 * Cors
 * Dotenv
 * Nodemon
@@ -26,6 +29,9 @@ Il progetto permette di gestire autori e articoli di un blog attraverso API REST
 * React Bootstrap
 * React Router DOM
 * Fetch API
+* Draft.js
+* React Draft WYSIWYG
+* React Icons
 
 ---
 
@@ -39,6 +45,7 @@ Il progetto permette di gestire autori e articoli di un blog attraverso API REST
 * Modifica di un autore
 * Eliminazione di un autore
 * Paginazione dei risultati
+* Upload dell'avatar su Cloudinary
 
 ### 📝 Gestione Blog Post
 
@@ -48,12 +55,21 @@ Il progetto permette di gestire autori e articoli di un blog attraverso API REST
 * Modifica di un blog post
 * Eliminazione di un blog post
 * Paginazione dei risultati
+* Collegamento di ogni post al relativo autore
+* Popolamento dei dati dell'autore tramite Mongoose
+* Upload della cover su Cloudinary
 
 ### 🌐 Frontend React
 
 * Visualizzazione dei post salvati nel database
+* Visualizzazione della pagina di dettaglio di un post
 * Collegamento tra React e API Express
+* Navigazione tra home, dettaglio del post e pagina di creazione
+* Editor di testo WYSIWYG per la scrittura dei contenuti
+* Componente per la gestione dei like lato interfaccia
 * Interfaccia basata sul template fornito da Strive School
+
+> I like sono attualmente gestiti nello stato locale del frontend e non vengono ancora salvati nel database.
 
 ---
 
@@ -63,14 +79,26 @@ Il progetto permette di gestire autori e articoli di un blog attraverso API REST
 Strive-Blog
 │
 ├── Backend
+│   ├── middlewares
+│   │   └── cloudinaryUploader.js
 │   ├── models
+│   │   ├── Author.js
+│   │   └── BlogPost.js
 │   ├── routes
+│   │   ├── authors.js
+│   │   └── blogPosts.js
 │   ├── server.js
 │   └── .env
 │
 └── Frontend
     ├── public
     ├── src
+    │   ├── assets
+    │   ├── components
+    │   ├── data
+    │   ├── views
+    │   ├── App.js
+    │   └── index.js
     └── package.json
 ```
 
@@ -108,31 +136,49 @@ Creare un file `.env` nella cartella `Backend`:
 
 ```env
 MONGO_URL=stringa_di_connessione_mongodb
+CLOUDINARY_CLOUD_NAME=nome_cloud_cloudinary
+CLOUDINARY_API_KEY=api_key_cloudinary
+CLOUDINARY_API_SECRET=api_secret_cloudinary
 ```
 
 ---
 
 ## 📡 API Disponibili
 
+Il backend viene eseguito su `http://localhost:3001`.
+
 ### Authors
 
-| Metodo | Endpoint     |
-| ------ | ------------ |
-| GET    | /authors     |
-| GET    | /authors/:id |
-| POST   | /authors     |
-| PUT    | /authors/:id |
-| DELETE | /authors/:id |
+| Metodo | Endpoint                  | Descrizione                 |
+| ------ | ------------------------- | --------------------------- |
+| GET    | /authors                  | Recupera tutti gli autori   |
+| GET    | /authors/:id              | Recupera un singolo autore  |
+| POST   | /authors                  | Crea un autore              |
+| PUT    | /authors/:id              | Modifica un autore          |
+| DELETE | /authors/:id              | Elimina un autore           |
+| PATCH  | /authors/:authorId/avatar | Carica l'avatar su Cloudinary |
 
 ### Blog Posts
 
-| Metodo | Endpoint       |
-| ------ | -------------- |
-| GET    | /blogPosts     |
-| GET    | /blogPosts/:id |
-| POST   | /blogPosts     |
-| PUT    | /blogPosts/:id |
-| DELETE | /blogPosts/:id |
+| Metodo | Endpoint                       | Descrizione                    |
+| ------ | ------------------------------ | ------------------------------ |
+| GET    | /blogPosts                     | Recupera tutti i blog post     |
+| GET    | /blogPosts/:id                 | Recupera un singolo blog post  |
+| POST   | /blogPosts                     | Crea un blog post              |
+| PUT    | /blogPosts/:id                 | Modifica un blog post          |
+| DELETE | /blogPosts/:id                 | Elimina un blog post           |
+| PATCH  | /blogPosts/:blogPostId/cover   | Carica la cover su Cloudinary  |
+
+Le richieste `GET /authors` e `GET /blogPosts` supportano la paginazione tramite i parametri:
+
+```text
+?page=1&limit=10
+```
+
+Per gli endpoint di upload è necessario inviare una richiesta `multipart/form-data`:
+
+* campo `avatar` per l'avatar dell'autore
+* campo `cover` per la cover del blog post
 
 ---
 
@@ -144,5 +190,7 @@ MONGO_URL=stringa_di_connessione_mongodb
 * Gestire operazioni CRUD
 * Implementare la paginazione
 * Collegare un frontend React ad un backend Node.js
+* Gestire file e immagini attraverso Cloudinary
+* Collegare i blog post agli autori tramite riferimenti MongoDB
 
 ---
