@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Image } from "react-bootstrap";
+import { Button, Card, Container, Form, Image } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import BlogAuthor from "../../components/blog/blog-author/BlogAuthor";
 import BlogLike from "../../components/navbar/likes/BlogLike";
@@ -7,7 +7,15 @@ import "./styles.css";
 
 const Blog = () => {
   const [blog, setBlog] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentForm, setCommentForm] = useState({
+    name: "",
+    comment: "",
+  });
   const [loading, setLoading] = useState(true);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState("");
   const params = useParams();
   const navigate = useNavigate();
 
@@ -32,8 +40,77 @@ const Blog = () => {
       }
     };
 
+    const getComments = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/blogPosts/${params.id}/comments`
+        );
+
+        if (!response.ok) {
+          throw new Error("Errore nel recupero dei commenti");
+        }
+
+        const result = await response.json();
+        setComments(result.data);
+      } catch (error) {
+        console.log(error);
+        setCommentError("Non è stato possibile caricare i commenti.");
+      } finally {
+        setCommentsLoading(false);
+      }
+    };
+
     getBlogPost();
+    getComments();
   }, [navigate, params.id]);
+
+  const handleCommentChange = (event) => {
+    const { name, value } = event.target;
+
+    setCommentForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  };
+
+  const handleCommentSubmit = async (event) => {
+    event.preventDefault();
+    setSubmittingComment(true);
+    setCommentError("");
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/blogPosts/${params.id}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: commentForm.name.trim(),
+            comment: commentForm.comment.trim(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Errore durante l'invio del commento");
+      }
+
+      const result = await response.json();
+
+      setComments(result.data);
+      setCommentForm({
+        name: "",
+        comment: "",
+      });
+    } catch (error) {
+      console.log(error);
+      setCommentError("Non è stato possibile inviare il commento.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
 
   if (loading || !blog) {
     return <div>loading</div>;
@@ -68,6 +145,64 @@ const Blog = () => {
               __html: blog.content,
             }}
           ></div>
+
+          <section className="blog-comments">
+            <h2>Commenti ({comments.length})</h2>
+
+            {commentError && (
+              <div className="blog-comments-error">{commentError}</div>
+            )}
+
+            {commentsLoading ? (
+              <p>Caricamento commenti...</p>
+            ) : comments.length > 0 ? (
+              <div className="blog-comments-list">
+                {comments.map((item) => (
+                  <Card key={item._id} className="blog-comment">
+                    <Card.Body>
+                      <Card.Title>{item.name}</Card.Title>
+                      <Card.Text>{item.comment}</Card.Text>
+                    </Card.Body>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p>Non ci sono ancora commenti.</p>
+            )}
+
+            <Form className="blog-comment-form" onSubmit={handleCommentSubmit}>
+              <Form.Group className="mb-3" controlId="comment-name">
+                <Form.Label>Nome</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="name"
+                  value={commentForm.name}
+                  onChange={handleCommentChange}
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="comment-text">
+                <Form.Label>Commento</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={4}
+                  name="comment"
+                  value={commentForm.comment}
+                  onChange={handleCommentChange}
+                  required
+                />
+              </Form.Group>
+
+              <Button
+                type="submit"
+                variant="dark"
+                disabled={submittingComment}
+              >
+                {submittingComment ? "Invio..." : "Invia commento"}
+              </Button>
+            </Form>
+          </section>
         </Container>
       </div>
     );

@@ -38,5 +38,31 @@
   align-items: center;
 }
 .rdw-editor-main {
-  border: 1px solid grey
+  border: 1px solid grey;
+}
+
+.blog-comments {
+  margin-top: 60px;
+  margin-bottom: 60px;
+}
+
+.blog-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.blog-comment {
+  border: 0;
+  background-color: #f8f9fa;
+}
+
+.blog-comment-form {
+  margin-top: 32px;
+}
+
+.blog-comments-error {
+  margin: 16px 0;
+  color: #b02a37;
 }
